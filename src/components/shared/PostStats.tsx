@@ -17,7 +17,7 @@ type PostStatsProps = {
 
 const PostStats = ({ post, userId }: PostStatsProps) => {
   const location = useLocation();
-  const likesList = post.likes.map((user: Models.Document) => user.$id);
+  const likesList = post?.likes?.map((user: Models.Document) => user?.$id) || [];
 
   const [likes, setLikes] = useState<string[]>(likesList);
   const [isSaved, setIsSaved] = useState(false);
@@ -28,13 +28,13 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
   const { data: currentUser } = useGetCurrentUser();
 
-  const savedPostRecord = currentUser?.save.find(
-    (record: Models.Document) => record.post.$id === post.$id
+  const savedPostRecord = currentUser?.save?.find(
+    (record: Models.Document) => record.post?.$id === post?.$id
   );
 
   useEffect(() => {
     setIsSaved(!!savedPostRecord);
-  }, [currentUser]);
+  }, [savedPostRecord]);
 
   const handleLikePost = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
@@ -70,6 +70,10 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
   const containerStyles = location.pathname.startsWith("/profile")
     ? "w-full"
     : "";
+
+  if (!post || !userId) {
+    return null; // Handle cases where props are not properly passed
+  }
 
   return (
     <div
