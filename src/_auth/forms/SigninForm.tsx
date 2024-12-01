@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,6 @@ import { SigninValidation } from "@/lib/validation";
 import { useSignInAccount } from "@/lib/react-query/queries";
 import { useUserContext } from "@/context/AuthContext";
 
-import { Client, Account } from "appwrite";
 import { account, OAuthProvider } from "@/lib/appwrite/config";
 
 const SigninForm = () => {
