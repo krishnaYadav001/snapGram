@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,12 +14,14 @@ import { SigninValidation } from "@/lib/validation";
 import { useSignInAccount } from "@/lib/react-query/queries";
 import { useUserContext } from "@/context/AuthContext";
 
+import { Client, Account } from "appwrite";
+import { account, OAuthProvider } from "@/lib/appwrite/config";
+
 const SigninForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
-  // Query
   const { mutateAsync: signInAccount, isLoading } = useSignInAccount();
 
   const form = useForm<z.infer<typeof SigninValidation>>({
@@ -34,7 +37,6 @@ const SigninForm = () => {
 
     if (!session) {
       toast({ title: "Login failed. Please try again." });
-      
       return;
     }
 
@@ -42,29 +44,50 @@ const SigninForm = () => {
 
     if (isLoggedIn) {
       form.reset();
-
       navigate("/");
     } else {
-      toast({ title: "Login failed. Please try again.", });
-      
+      toast({ title: "Login failed. Please try again." });
       return;
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        "http://localhost:5173",
+        "http://localhost:5173/fail"
+      );
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      toast({ title: "Google Sign-In failed. Please try again." });
+    }
+  };
+
+
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const user = await account.get();
+        console.log(`Hi ${user.name || user.email} 👋`);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    init();
+  }, []);
 
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
         <img src="/assets/images/logo.svg" alt="logo" />
 
-        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
-          Log in to your account
-        </h2>
+        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">Log in to your account</h2>
         <p className="text-light-3 small-medium md:base-regular mt-2">
           Welcome back! Please enter your details.
         </p>
-        <form
-          onSubmit={form.handleSubmit(handleSignin)}
-          className="flex flex-col gap-5 w-full mt-4">
+        <form onSubmit={form.handleSubmit(handleSignin)} className="flex flex-col gap-5 w-full mt-4">
           <FormField
             control={form.control}
             name="email"
@@ -103,11 +126,21 @@ const SigninForm = () => {
             )}
           </Button>
 
+          <div className="mt-4 flex justify-between gap-2">
+            <Button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="flex items-center justify-center bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow transition-shadow text-black py-2 px-4"
+            >
+              <img src="/assets/icons/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+              Sign in with Google
+            </Button>
+            
+          </div>
+
           <p className="text-small-regular text-light-2 text-center mt-2">
             Don&apos;t have an account?
-            <Link
-              to="/sign-up"
-              className="text-primary-500 text-small-semibold ml-1">
+            <Link to="/sign-up" className="text-primary-500 text-small-semibold ml-1">
               Sign up
             </Link>
           </p>
