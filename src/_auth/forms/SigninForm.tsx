@@ -55,7 +55,7 @@ const SigninForm = () => {
       await account.createOAuth2Session(
         OAuthProvider.Google,
         "https://snap-gram-omega.vercel.app/",
-        "https://snap-gram-omega.vercel.app//fail"
+        "https://snap-gram-omega.vercel.app/fail"
       );
     } catch (error) {
       console.error("Google Sign-In Error:", error);
