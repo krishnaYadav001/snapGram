@@ -14,7 +14,7 @@ import { SigninValidation } from "@/lib/validation";
 import { useSignInAccount } from "@/lib/react-query/queries";
 import { useUserContext } from "@/context/AuthContext";
 
-import { account } from "@/lib/appwrite/config";
+import { account, OAuthProvider } from "@/lib/appwrite/config";
 
 const SigninForm = () => {
   const { toast } = useToast();
@@ -49,6 +49,21 @@ const SigninForm = () => {
       return;
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        "https://snap-gram-omega.vercel.app/",
+        "https://snap-gram-omega.vercel.app//fail"
+      );
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      toast({ title: "Google Sign-In failed. Please try again." });
+    }
+  };
+
+
 
   useEffect(() => {
     const init = async () => {
@@ -109,6 +124,18 @@ const SigninForm = () => {
               "Log in"
             )}
           </Button>
+
+          <div className="mt-4 flex justify-between gap-2">
+            <Button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="flex items-center justify-center bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow transition-shadow text-black py-2 px-4"
+            >
+              <img src="/assets/icons/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+              Sign in with Google
+            </Button>
+            
+          </div>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
             Don&apos;t have an account?
